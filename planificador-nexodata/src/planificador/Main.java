@@ -2,6 +2,7 @@ package planificador;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,9 +23,9 @@ public class Main {
             System.err.println("Uso: java planificador.Main <fichero.csv> <fcfs|sjf|rr|todos> [quantum] [--traza]");
             System.exit(1);
         }
-        Path fichero = Path.of(args[0]);
-        String algoritmo = args[1].toLowerCase();
-        boolean traza = List.of(args).contains("--traza");
+        Path fichero =Path.of(args[0]);
+        String algoritmo=args[1].toLowerCase();
+        boolean traza=List.of(args).contains("--traza");
         int quantum = 2;
         if (args.length >= 3 && !args[2].startsWith("--")) {
             try {
@@ -44,11 +45,28 @@ public class Main {
             System.exit(1);
         }
 
-        System.out.println("Fichero: " + fichero + " | algoritmo: " + algoritmo
-                + " | quantum: " + quantum + " | traza: " + traza);
+        List<Proceso> procesosOriginales = LectorProcesos.leerProcesos(fichero.toString());
 
-        // TODO (tareas 1 a 3): a partir de aquí, lee los procesos del fichero,
-        // simula el algoritmo o algoritmos pedidos y muestra los resultados.
-        // Cuando lo tengas, borra el println de arriba y este comentario.
+        if (algoritmo.equals("fcfs") || algoritmo.equals("todos")) {
+            ejecutar(new FCFS(),clonar(procesosOriginales));
+        }
+        if (algoritmo.equals("sjf")|| algoritmo.equals("todos")) {
+            ejecutar(new SJF(), clonar(procesosOriginales));
+        }
+        if (algoritmo.equals("rr")|| algoritmo.equals("todos")) {
+            ejecutar(new RoundRobin(quantum), clonar(procesosOriginales));
+        }
+    }
+
+    private static List<Proceso> clonar(List<Proceso> originales) {
+        List<Proceso> copias = new ArrayList<>();
+        for (Proceso p : originales) {
+            copias.add(new Proceso(p));
+        }
+        return copias;
+    }
+
+    private static void ejecutar(Planificador planificador, List<Proceso> procesos) {
+        planificador.simular(procesos);
     }
 }
